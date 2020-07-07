@@ -102,7 +102,7 @@ h2.title.on span::after {width:100%;}
 }
 
 .about_wrap {position:relative; width:100%; min-height:500px; height:86vh; overflow:hidden;
-	background-image: url('/images/visual-04.jpg');
+	background-image: url('/photopolio/images/visual-04.jpg');
     background-size: cover;
     -webkit-animation: GradientAnimation 8s linear forwards;
     -moz-animation: GradientAnimation 8s linear forwards;
