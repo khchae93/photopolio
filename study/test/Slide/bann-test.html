@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>슬라이드 무한 슬라이드</title>
+    <style src=></style>
+    <style>
+       body * {
+         height: 50px;
+        }
+        .slide_box{
+            width: 200px;
+           position: relative;
+           left: 50%;
+           margin-left: -100px;
+           top: 400px;
+           border: 5px blue solid;
+           z-index: 100;
+        }
+        .slide_wrap{
+            background: red;
+            width: 1200px;
+            margin: 0;
+            padding: 0;
+        }
+        .slide_item{
+            background: green;
+            width: 200px;
+            list-style: none;
+            float: left;
+            text-align: center;
+            line-height: 50px;
+        }
+        .slide_item a{
+            text-decoration: none;
+            color : black;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide_box"> 
+        <ul class="slide_wrap">
+            <li class="slide_item"><a href="#">1</a></li>
+            <li class="slide_item"><a href="#">2</a></li>
+            <li class="slide_item"><a href="#">3</a></li>
+            <li class="slide_item"><a href="#">4</a></li>
+            <li class="slide_item"><a href="#">5</a></li>
+        </ul>
+    </div>
+    <script>
+    var ul = document.querySelector('.slide_wrap');
+    var firstItemClone = ul.firstElementChild.cloneNode(true);
+    ul.appendChild(firstItemClone);
+ 
+ function move(){
+
+     
+    var curIndex = 0;
+
+     setInterval(function(){
+         ul.style.transition = '0.2s';
+         ul.style.transform = "translate3d(-"+200*(curIndex+1)+"px, 0px, 0px)";
+
+         curIndex++;
+
+         if(curIndex === 5){
+             curIndex = -1;
+         }
+
+     },1000);
+ }
+ 
+ document.addEventListener("DOMContentLoaded",function(){
+     move();
+ });
+    </script>
+</body>
+</html>

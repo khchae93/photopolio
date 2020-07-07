@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>Slide - 무한 loop (li 위치)</title>
+    <style>
+        * {margin:0; padding:0;}
+        ul, ol, li {list-style:none;}
+
+        body {padding:24px;}
+
+        ul#random-t1 {width:500px; padding:20px;}
+        ul#random-t1 li {width:100%; height:50px;}
+        ul#random-t1 li.li-color1{background-color:yellow;}
+        ul#random-t1 li.li-color2{background-color:yellowgreen;}
+        ul#random-t1 li.li-color3{background-color:skyblue;}
+
+        .banner-scroll {position:relative; overflow:hidden; width:500px; height:200px; margin:20px; background:#fff;}
+        .banner-scroll .btn {display:block; z-index:10; position:absolute; top:50%; width:30px; height:30px; margin-top:-15px; background-color:#fff; color:#303030;}
+        .banner-scroll .btn.prev {left:0;}
+        .banner-scroll .btn.next {right:0;}
+        .banner-scroll ul {position:relative; width:800px;}
+        .banner-scroll li {position:relative; float:left; width:400px;}
+        .banner-scroll li div {width:400px; height:200px; color:#fff;}
+    </style>
+</head>
+<body>
+
+    <h1>Slide - 무한 loop 2</h1>
+    <ul style="padding:20px 0 60px;">
+        <li>- jquery 사용</li>
+        <li>- li 위치값 변화로 무한루프되게 작업</li>
+        <li>- 모바일은 작업 전입니다.</li>
+    </ul>
+    
+    <div class="banner-scroll" id="scroll">
+        <ul>
+            <li>
+                <div style="background-color:blue;">첫번째 banner</div>
+            </li>
+            <li>
+                <div style="background-color:rgb(0, 255, 179);">두번째 banner</div>
+            </li>
+            <li>
+                <div style="background-color:rgb(248, 6, 236);">세번째 banner</div>
+            </li>
+            <li>
+                <div style="background-color:blue;">네번째 banner</div>
+            </li>
+            <li>
+                <div style="background-color:rgb(0, 255, 179);">다섯번째 banner</div>
+            </li>
+            <li>
+                <div style="background-color:rgb(248, 6, 236);">여섯번째 banner</div>
+            </li>
+        </ul>
+
+        <button type="button" class="btn prev">&lt;</button>
+        <button type="button" class="btn next">&gt;</button>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!--  모션 없음
+    <script>
+
+(function(){
+
+    $(document).ready(function(){
+
+        var qlis_bann = $('#scroll ul li'),
+            qbtn_prev = $('.prev'),
+            qbtn_next = $('.next'),
+            qli = qlis_bann.width(),
+            num_now = 0; // 현재
+            num_next = 1, // 다음
+            num_then = 2, // 그다음
+            num_pass = -1; // 이전
+
+        qlis_bann.css('position','absolute').css('left', (qli*2)+'px').css('z-index', 0);
+        $(qlis_bann[num_now]).css('left', 0).css('z-index', 5);
+        $(qlis_bann[num_next]).css('left', qli+'px').css('z-index', 0);
+        $(qlis_bann[num_then]).css('left', (qli*2)+'px').css('z-index', 0);
+        $(qlis_bann[num_pass+qlis_bann.length]).css('left', '-'+qli+'px').css('z-index', 0);
+
+        var prev_on = function(){
+            num_now = num_now - 1;
+            num_next = num_next - 1;
+            num_then = num_then - 1;
+            num_pass = num_pass - 1;
+            qlis_bann.css('z-index', 0);
+            if( 0 < num_next ) {
+                console.log('이전-num_pass:',num_pass, ' 이전-num_now:',num_now,'  이전-num_next:',num_next,' 이전-num_then:',num_then);
+                $(qlis_bann[num_now]).css('left', 0).css('z-index', 5);
+                $(qlis_bann[num_next]).css('left', qli+'px').css('z-index', 1);
+                //$(qlis_bann[num_then]).css('left', (qli*2)+'px').css('z-index', 0);
+                if(qlis_bann.length <= num_then){
+                    //console.log('if : qlis_bann.length < num_then ', qlis_bann.length, '<', num_then);
+                    $(qlis_bann[num_then-qlis_bann.length]).css('left', (qli*2)+'px').css('z-index', 0);
+                } else{
+                    //console.log('else : qlis_bann.length > num_then ', qlis_bann.length, '>', num_then);
+                    $(qlis_bann[num_then]).css('left', (qli*2)+'px').css('z-index', 0);
+                }
+
+                if(0 > num_pass){
+                    //console.log('if : 0 > num_pass ', '0 > ', num_pass);
+                    $(qlis_bann[num_pass+qlis_bann.length]).css('left', '-'+qli+'px').css('z-index', 0);
+                } else{
+                    //console.log('else : 0 < num_pass ', '0 < ', num_pass);
+                    $(qlis_bann[num_pass]).css('left', '-'+qli+'px').css('z-index', 0);
+                }
+
+            } else {
+                console.log('1-이전-num_pass:',num_pass, ' 1-이전-num_now:',num_now,'  1-이전-num_next:',num_next,' 1-이전-num_then:',num_then);
+                $(qlis_bann[num_now+qlis_bann.length]).css('left', 0).css('z-index', 5);
+                $(qlis_bann[num_next]).css('left', qli+'px').css('z-index', 1;
+                $(qlis_bann[num_then]).css('left', (qli*2)+'px').css('z-index', 0);
+                $(qlis_bann[num_pass+qlis_bann.length]).css('left', '-'+qli+'px').css('z-index', 0);
+                
+                num_now = num_now+qlis_bann.length;
+                num_next = num_next+qlis_bann.length;
+                num_then = num_then+qlis_bann.length;
+                num_pass = num_pass+qlis_bann.length;
+            }
+        }
+
+        var next_on = function(){
+            num_pass = num_now;  //이전
+            num_now = num_now+1; // 현재
+            num_next = num_next+1; // 다음
+            num_then = num_then+1; // 그다음
+            
+            if(qlis_bann.length > num_next ) {
+                console.log('다음-num_pass:',num_pass, ' 다음-num_now:',num_now,'  다음-num_next:',num_next,' 다음-num_then:',num_then);
+                $(qlis_bann[num_now]).css('left', 0).css('z-index', 5);
+                $(qlis_bann[num_next]).css('left', qli+'px').css('z-index', 1);
+                if((qlis_bann.length-1) < num_then){
+                    console.log('if : '+num_then);
+                    $(qlis_bann[num_then-qlis_bann.length]).css('left', (qli*2)+'px').css('z-index', 0);
+                } else{
+                    console.log('else : '+num_then);
+                    $(qlis_bann[num_then]).css('left', (qli*2)+'px').css('z-index', 0);
+                }
+                $(qlis_bann[num_pass]).css('left', '-'+qli+'px').css('z-index', 0);
+                
+                /*
+                $(qlis_bann[num_now]).animate({  
+                    left: 0
+                }, 1000);
+                $(qlis_bann[num_next]).animate({  
+                    left: qli+'px'
+                }, 1000);
+                if((qlis_bann.length-1) < num_then){
+                    console.log('if : '+num_then);
+                    $(qlis_bann[num_then-qlis_bann.length]).animate({  
+                        left: (qli*2)+'px'
+                    }, 1000);
+                } else{
+                    console.log('else : '+num_then);
+                    $(qlis_bann[num_then]).animate({  
+                        left: (qli*2)+'px'
+                    }, 1000);
+                }
+                $(qlis_bann[num_pass]).animate({  
+                    left: '-'+qli+'px'
+                }, 1000);
+                */
+
+            } else if(qlis_bann.length === num_next) {
+                console.log('1-다음-num_pass:',num_pass, '  1-다음-num_now:',num_now,' 1-다음-num_next:',num_next,' 1-다음-num_then:',num_then);
+                
+                $(qlis_bann[num_now]).css('left', 0).css('z-index', 5);  //5  (5)
+                $(qlis_bann[num_next-qlis_bann.length]).css('left', qli+'px').css('z-index', 1);  // 6 (0)
+                $(qlis_bann[num_then-qlis_bann.length]).css('left', (qli*2)+'px').css('z-index', 0);  //7 (1)
+                $(qlis_bann[num_pass]).css('left', '-'+qli+'px').css('z-index', 0);  //4 (4)
+ 
+
+            } else {
+                console.log('2-다음-num_pass:',num_pass, '  2-다음-num_now:',num_now,' 2-다음-num_next:',num_next,' 2-다음-num_then:',num_then);
+                
+                $(qlis_bann[num_now-qlis_bann.length]).css('left', 0).css('z-index', 5);  //6  (0)
+                $(qlis_bann[num_next-qlis_bann.length]).css('left', qli+'px').css('z-index', 1);  // 7 (1)
+                $(qlis_bann[num_then-qlis_bann.length]).css('left', (qli*2)+'px').css('z-index', 0);  //8 (2)
+                $(qlis_bann[num_pass]).css('left', '-'+qli+'px').css('z-index', 0);  //5 (5)
+
+                num_now = 0; // 현재
+                num_next = 1; // 다음
+                num_then = 2; // 그다음
+                num_pass = qlis_bann.length; // 이전
+            }
+
+
+        }
+
+        qbtn_prev.on('click', prev_on);
+
+        qbtn_next.on('click', next_on);
+
+
+    });
+
+
+})();
+
+
+    </script>
+ -->
+
+
+<!--  모션 : 슬라이드 -->
+    <script>
+
+(function(){
+
+    $(document).ready(function(){
+
+        var qlis_bann = $('#scroll ul li'),
+            qbtn_prev = $('.prev'),
+            qbtn_next = $('.next'),
+            qli = qlis_bann.width(),
+            num_now = 0; // 현재
+            num_next = 1, // 다음
+            num_then = 2, // 그다음
+            num_pass = -1; // 이전
+
+        qlis_bann.css('position','absolute').css('left', (qli*2)+'px').css('z-index', 0);
+        $(qlis_bann[num_now]).css('left', 0).css('z-index', 5);
+        $(qlis_bann[num_next]).css('left', qli+'px').css('z-index', 1);
+        $(qlis_bann[num_then]).css('left', (qli*2)+'px').css('z-index', 0);
+
+        var prev_on = function(){
+            $(qlis_bann[num_pass+qlis_bann.length]).css('left', '-'+qli+'px').css('z-index', 0);
+
+            num_now = num_now - 1;
+            num_next = num_next - 1;
+            num_then = num_then - 1;
+            num_pass = num_pass - 1;
+            qlis_bann.css('z-index', 0);
+            if( 0 < num_next ) {
+                console.log('이전-num_pass:',num_pass, ' 이전-num_now:',num_now,'  이전-num_next:',num_next,' 이전-num_then:',num_then);
+                $(qlis_bann[num_now]).animate({  
+                    left: 0,
+                    zIndex: 5
+                }, 1000);
+
+                $(qlis_bann[num_next]).animate({  
+                    left: qli+'px',
+                    zIndex: 1
+                }, 1000);
+
+                if(qlis_bann.length <= num_then){
+                    $(qlis_bann[num_then-qlis_bann.length]).animate({  
+                        left: (qli*2)+'px',
+                        zIndex: 0
+                    }, 1000);
+                } else{
+                    $(qlis_bann[num_then]).animate({  
+                        left: (qli*2)+'px',
+                        zIndex: 0
+                    }, 1000);
+                }
+
+                if(0 > num_pass){
+                    //console.log('if : 0 > num_pass ', '0 > ', num_pass);
+                    $(qlis_bann[num_pass+qlis_bann.length]).css('left', '-'+qli+'px');
+                    $(qlis_bann[num_pass+qlis_bann.length]).animate({  
+                        left: '-'+qli+'px',
+                        zIndex: 0
+                    }, 1000);
+                } else{
+                    //console.log('else : 0 < num_pass ', '0 < ', num_pass);
+                    $(qlis_bann[num_pass]).css('left', '-'+qli+'px');
+                    $(qlis_bann[num_pass]).animate({  
+                        left: '-'+qli+'px',
+                        zIndex: 0
+                    }, 1000);
+                    
+                }
+
+            } else {
+                console.log('1-이전-num_pass:',num_pass, ' 1-이전-num_now:',num_now,'  1-이전-num_next:',num_next,' 1-이전-num_then:',num_then);
+                $(qlis_bann[num_now+qlis_bann.length]).animate({  
+                    left: 0,
+                    zIndex: 5
+                }, 1000);
+                $(qlis_bann[num_next]).animate({  
+                    left: qli+'px',
+                    zIndex: 1
+                }, 1000);
+                $(qlis_bann[num_then]).animate({  
+                    left: (qli*2)+'px',
+                    zIndex: 0
+                }, 1000);
+                $(qlis_bann[num_pass+qlis_bann.length]).css('left', '-'+qli+'px');
+                $(qlis_bann[num_pass+qlis_bann.length]).animate({  
+                    left: '-'+qli+'px',
+                    zIndex: 0
+                }, 1000);
+                
+                
+                num_now = num_now+qlis_bann.length;
+                num_next = num_next+qlis_bann.length;
+                num_then = num_then+qlis_bann.length;
+                num_pass = num_pass+qlis_bann.length;
+            }
+        }
+
+        var next_on = function(){
+            $(qlis_bann[num_pass]).css('left', (qli*2)+'px');
+            
+            num_pass = num_now;  //이전
+            num_now = num_now+1; // 현재
+            num_next = num_next+1; // 다음
+            num_then = num_then+1; // 그다음
+            
+            if(qlis_bann.length > num_next ) {
+                console.log('다음-num_pass:',num_pass, ' 다음-num_now:',num_now,'  다음-num_next:',num_next,' 다음-num_then:',num_then);
+                
+                $(qlis_bann[num_now]).animate({  
+                    left: 0,
+                    zIndex: 5
+                }, 1000);
+                $(qlis_bann[num_next]).animate({  
+                    left: qli+'px',
+                    zIndex: 1
+                }, 1000);
+                if((qlis_bann.length-1) < num_then){
+                    $(qlis_bann[num_then-qlis_bann.length]).animate({  
+                        left: (qli*2)+'px',
+                        zIndex: 0
+                    }, 1000);
+                } else{
+                    $(qlis_bann[num_then]).animate({  
+                        left: (qli*2)+'px',
+                        zIndex: 0
+                    }, 1000);
+                }
+                $(qlis_bann[num_pass]).animate({  
+                    left: '-'+qli+'px',
+                    zIndex: 0
+                }, 1000);
+                
+
+            } else if(qlis_bann.length === num_next) {
+                console.log('1-다음-num_pass:',num_pass, '  1-다음-num_now:',num_now,' 1-다음-num_next:',num_next,' 1-다음-num_then:',num_then);
+
+                $(qlis_bann[num_now]).animate({  
+                    left: 0,
+                    zIndex: 5
+                }, 1000);
+                $(qlis_bann[num_next-qlis_bann.length]).animate({  
+                    left: qli+'px',
+                    zIndex: 1
+                }, 1000);
+                $(qlis_bann[num_then-qlis_bann.length]).animate({  
+                    left: (qli*2)+'px',
+                    zIndex: 0
+                }, 1000);
+                $(qlis_bann[num_pass]).animate({  
+                    left: '-'+qli+'px',
+                    zIndex: 0
+                }, 1000);
+                
+ 
+
+            } else {
+                console.log('2-다음-num_pass:',num_pass, '  2-다음-num_now:',num_now,' 2-다음-num_next:',num_next,' 2-다음-num_then:',num_then);
+
+                $(qlis_bann[num_now-qlis_bann.length]).animate({  
+                    left: 0,
+                    zIndex: 5
+                }, 1000);
+                $(qlis_bann[num_next-qlis_bann.length]).animate({  
+                    left: qli+'px',
+                    zIndex: 1
+                }, 1000);
+                $(qlis_bann[num_then-qlis_bann.length]).animate({  
+                    left: (qli*2)+'px',
+                    zIndex: 0
+                }, 1000);
+                $(qlis_bann[num_pass]).animate({  
+                    left: '-'+qli+'px',
+                    zIndex: 0
+                }, 1000);
+                
+
+                num_now = 0; // 현재
+                num_next = 1; // 다음
+                num_then = 2; // 그다음
+                num_pass = qlis_bann.length; // 이전
+            }
+
+
+        }
+
+        qbtn_prev.on('click', prev_on);
+
+        qbtn_next.on('click', next_on);
+
+
+    });
+
+
+})();
+
+
+    </script>
+
+</body>
+</html>

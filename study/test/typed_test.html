@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+    <title>타이핑 플로그인</title>
+    <style>
+        span {font-size:28px; font-weight:bold;}
+    </style>
+</head>
+<body>
+    
+    <!-- 플로그인 URL: 
+            https://github.com/mattboldt/typed.js/
+            https://mattboldt.com/demos/typed-js/
+    -->
+    
+    <div style="padding:60px;">
+        <div id="typed-strings">
+            <span>#웹퍼블리셔</span>
+            <span>#1px</span>
+            <span>#꼼꼼한</span>
+            <span>#책임감있는</span>
+            <span>#협업하는</span>
+        </div>
+        <span id="typed" style="white-space:pre;"></span>
+    </div>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+
+/* typing animation */
+document.addEventListener('DOMContentLoaded', function () {
+    var typed = new Typed('#typed', {
+        stringsElement: '#typed-strings',
+        typeSpeed: 120,
+        backSpeed: 90,
+        startDelay: 1000,
+        loop: false,
+        loopCount: Infinity,
+        onComplete: function (self) { prettyLog('onComplete ' + self) },
+        preStringTyped: function (pos, self) { prettyLog('preStringTyped ' + pos + ' ' + self); },
+        onStringTyped: function (pos, self) { prettyLog('onStringTyped ' + pos + ' ' + self) },
+        onLastStringBackspaced: function (self) { prettyLog('onLastStringBackspaced ' + self) },
+        onTypingPaused: function (pos, self) { prettyLog('onTypingPaused ' + pos + ' ' + self) },
+        onTypingResumed: function (pos, self) { prettyLog('onTypingResumed ' + pos + ' ' + self) },
+        onReset: function (self) { prettyLog('onReset ' + self) },
+        onStop: function (pos, self) { prettyLog('onStop ' + pos + ' ' + self) },
+        onStart: function (pos, self) { prettyLog('onStart ' + pos + ' ' + self) },
+        onDestroy: function (self) { prettyLog('onDestroy ' + self) }
+    });
+
+    toggleLoop(typed);
+
+});
+
+function prettyLog(str) {
+    console.log('%c ' + str, 'color: green; font-weight: bold;');
+}
+
+function toggleLoop(typed) {
+    if (typed.loop) {
+        typed.loop = false;
+    } else {
+        typed.loop = true;
+    }
+}
+
+
+    </script>
+</body>
+</html>

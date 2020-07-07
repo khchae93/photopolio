@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <title>Accordion - 기본</title>
+    <style>
+        * {margin:0; padding:0;}
+        ul, ol, li {list-style:none;}
+
+        body {padding:24px;}
+
+        button {border:0 none; border-radius:0; background-color:transparent; cursor:pointer}
+        button[disabled] {cursor:default}
+
+        .hide {display:inline-block;position:absolute;z-index:-10;width:0 !important;height:0 !important;overflow:hidden !important;font-size:medium;line-height:normal;word-break:break-all}
+
+        .list_acc .acc_cont {position:relative;}
+        .list_acc .acc_head {position:relative; border-bottom:1px solid #e0e0e0;}
+        .list_acc .acc_head::after{content:'';display:table;clear:both;}
+        .list_acc button.btn_acc_detail {display:block; width:100%; padding:24px 30px 24px 0; text-align:left;}
+        .list_acc button.btn_acc_detail::after {content:''; position:absolute; right:24px; top:50%; width:20px; height:20px; margin-top:-15px; border-left:2px solid #808080; border-bottom:2px solid #808080; transform:rotate(-45deg);}
+        .list_acc button.btn_acc_detail::after:hover {border-left:2px solid #333; border-bottom:2px solid #333;}
+        
+        .list_acc .acc_detail {display:none; padding:30px 0; border-bottom:1px solid #e0e0e0;}
+        .list_acc .acc_cont.on .acc_detail {}
+        .list_acc .acc_cont.on button.btn_acc_detail::after {margin-top:-3px; transform:rotate(135deg);}
+
+        .list_acc_ui {width:800px;}
+        .list_acc_ui .acc_head {background-color:#f5f5f5;}
+        .list_acc_ui .acc_title {display:block; color:#333; font-size:20px; line-height:28px;}
+
+        @media only screen and (max-width: 768px) {
+            .list_acc_ui {width:100%;}
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Accordion - 기본</h1>
+    <ul style="padding:20px 0 60px;">
+        <li>- jquery 사용</li>
+        <li>- 이벤트에 따라 aria, 숨김대체텍스트도 바뀌도록 작업</li>
+        <li>- 로드 시 기본으로 열리는 행 지정할 수 있는 옵션 작업</li>
+    </ul>
+    
+    <div class="list_acc list_acc_ui js-acc" data-open-detail="2">
+        <div class="acc_cont js-acc-cont">
+            <!-- accordion head -->
+            <div class="acc_head">
+                <button type="button" class="btn_acc_detail js-acc-btn" data-txt-open="자세히 보기" data-txt-close="내용 닫기">
+                    <span class="acc_title">타이틀 1</span>
+                    <span class="hide hide_txt">자세히 보기</span>
+                </button>
+            </div>
+
+            <!-- accordion detail -->
+            <div class="acc_detail js-acc-detail">
+                <span class="hide">바이널씨 작업 이력</span>
+                타이틀 1 내용<br>
+                타이틀 1 내용<br>
+                타이틀 1 내용<br>
+                타이틀 1 내용<br>
+            </div>
+        </div>
+
+        <div class="acc_cont js-acc-cont">
+            <!-- accordion head -->
+            <div class="acc_head">
+                <button type="button" class="btn_acc_detail js-acc-btn" data-txt-open="자세히 보기" data-txt-close="내용 닫기">
+                    <span class="acc_title">타이틀 2</span>
+                    <span class="hide hide_txt">자세히 보기</span>
+                </button>
+            </div>
+
+            <!-- accordion detail -->
+            <div class="acc_detail js-acc-detail">
+                <span class="hide">바이널씨 작업 이력</span>
+                타이틀 2 내용<br>
+                타이틀 2 내용<br>
+                타이틀 2 내용<br>
+                타이틀 2 내용<br>
+            </div>
+        </div>
+
+        <div class="acc_cont js-acc-cont">
+            <!-- accordion head -->
+            <div class="acc_head">
+                <button type="button" class="btn_acc_detail js-acc-btn" data-txt-open="자세히 보기" data-txt-close="내용 닫기">
+                    <span class="acc_title">타이틀 3</span>
+                    <span class="hide hide_txt">자세히 보기</span>
+                </button>
+            </div>
+
+            <!-- accordion detail -->
+            <div class="acc_detail js-acc-detail">
+                <span class="hide">바이널씨 작업 이력</span>
+                타이틀 3 내용<br>
+                타이틀 3 내용<br>
+                타이틀 3 내용<br>
+                타이틀 3 내용<br>
+            </div>
+        </div>
+
+        <div class="acc_cont js-acc-cont">
+            <!-- accordion head -->
+            <div class="acc_head">
+                <button type="button" class="btn_acc_detail js-acc-btn" data-txt-open="자세히 보기" data-txt-close="내용 닫기">
+                    <span class="acc_title">타이틀 4</span>
+                    <span class="hide hide_txt">자세히 보기</span>
+                </button>
+            </div>
+
+            <!-- accordion detail -->
+            <div class="acc_detail js-acc-detail">
+                <span class="hide">바이널씨 작업 이력</span>
+                타이틀 4 내용<br>
+                타이틀 4 내용<br>
+                타이틀 4 내용<br>
+                타이틀 4 내용<br>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+
+
+(function(){
+
+    $(document).ready(function(){
+
+        /* Accordion */
+        var Accordion = function (){
+            var $acc = $('.js-acc'),
+                $accCont = $('.js-acc-cont'),
+                $accBtn = $('.js-acc-btn'),
+                $accDet = $('.js-acc-detail'),
+                $accBtnTxt = $('.hide_txt'),
+                $toggle = false;
+
+            // $(this).attr('aria-expanded') === 'true'
+
+            $accBtn.each(function(index, item){
+                if (( parseInt($acc.attr('data-open-detail')) - 1) !== index) {
+                    $(this).attr({
+                        'id': 'accrod_toggle_' + index,
+                        'aria-controls': 'accord_content_' + index,
+                        'aria-expanded': $toggle
+                    }).find('.hide_txt').text($(this).attr('data-txt-open'))
+                    .parent().parent().attr('role', 'presentation');
+                } else {
+                    $(this).attr({
+                        'id': 'accrod_toggle_' + index,
+                        'aria-controls': 'accord_content_' + index,
+                        'aria-expanded': !$toggle
+                    }).find('.hide_txt').text($(this).attr('data-txt-close'))
+                    .parent().parent().attr('role', 'presentation');
+                }
+            });
+
+            $accDet.each(function(index, item){
+                if (( parseInt($acc.attr('data-open-detail')) - 1) !== index) {
+                    $(this).attr({
+                        'id': 'accord_content_' + index,
+                        'role': 'region',
+                        'aria-labelledby': 'accord_toggle_' + index
+                    });
+                } else {
+                    $(this).attr({
+                        'id': 'accord_content_' + index,
+                        'role': 'region',
+                        'aria-labelledby': 'accord_toggle_' + index
+                    }).slideDown().parent().addClass('on');
+                }
+                
+                
+            });
+
+            $accBtn.click(function(){
+                var $this_accCont = $(this).closest('.js-acc-cont');
+                var $this_accDet = $(this).closest('.js-acc-cont').find('.js-acc-detail');
+                var $this_accBtnTxt = $(this).find('.hide_txt');
+                
+                if($(this).closest('.js-acc-cont').hasClass('on')) {
+                    $this_accCont.removeClass('on');
+                    $this_accDet.slideUp();
+                    $this_accBtnTxt.text($(this).attr('data-txt-close'));
+                    $(this).attr({'aria-expanded': $toggle});
+                } else {
+                    $accCont.removeClass('on');
+                    $accDet.slideUp();
+                    $accBtnTxt.text($accBtn.attr('data-txt-close'));
+                    $accBtn.attr({'aria-expanded': $toggle});
+
+                    $this_accCont.addClass('on');
+                    $this_accDet.slideDown();
+                    $this_accBtnTxt.text( $(this).attr('data-txt-open'));
+                    $(this).attr({'aria-expanded': !$toggle});
+                }
+
+                // $(".row").not($(this)).slideUp();
+                // $($(this)).slideToggle();
+            });
+        }
+
+        Accordion();
+
+
+
+
+    });
+
+})();
+
+
+
+    </script>
+</body>
+</html>
