@@ -59,7 +59,6 @@ var Accordion = function (){
             }).slideDown().parent().addClass('on');
         }
         
-        
     });
 
     $accBtn.click(function(){
