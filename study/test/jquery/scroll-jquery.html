@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이미지 무한 스크롤</title>
+  <style>
+    :root {
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --primary-color: #0f172a;
+  --border-color: #e2e8f0;
+  --skeleton-base: #e2e8f0;
+  --skeleton-ani: #f1f5f9;
+}
+
+*{margin:0;padding:0;-webkit-text-size-adjust:none; box-sizing:border-box; word-break:normal; word-wrap:break-word;}
+*, *:after, *:before {-webkit-box-sizing:border-box; box-sizing:border-box; word-break:normal; word-wrap:break-word;}
+
+body {background-color: var(--bg-color);font-family: system-ui, sans-serif;margin: 0;padding: 20px;}
+
+#wrap {max-width: 1200px;margin: 0 auto;}
+
+header {text-align: center;margin-bottom: 30px;}
+
+/* 필터 버튼 */
+.filter_nav {display: flex; justify-content: center; gap: 10px; margin-top: 15px;}
+.filter_btn {background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: 500; transition: all 0.3s;}
+.filter_btn.active {background: var(--primary-color);color: #ffffff;border-color: var(--primary-color);}
+
+.grid_container {display: grid;grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));gap: 20px;}
+.grid_item {background: var(--card-bg);border-radius: 12px;overflow: hidden;border: 1px solid var(--border-color);box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);}
+
+.img_box {width: 100%;height: 200px;background-color: #eaeaea;overflow: hidden;}
+.img_box img {width: 100%;height: 100%;object-fit: cover;opacity: 0;transition: opacity 0.5s ease-in-out;}
+.img_box img.loaded {opacity: 1;}
+.info_box {padding: 15px;}
+.info_box h3 {margin: 0 0 8px 0;font-size: 18px;}
+.info_box p {margin: 0;color: #64748b;font-size: 16px;}
+
+.skeleton_card {background: var(--card-bg);border-radius: 12px;overflow: hidden;border: 1px solid var(--border-color);padding-bottom: 15px;}
+.skeleton_img {height: 200px;background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-ani) 50%, var(--skeleton-base) 75%);background-size: 200% 100%;animation: shimmer 1.5s infinite;}
+.skeleton_title {height: 18px;margin: 15px;width: 60%;background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-ani) 50%, var(--skeleton-base) 75%);background-size: 200% 100%;animation: shimmer 1.5s infinite;border-radius: 4px;}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.scroll_trigger {height: 20px;margin-top: 20px;}
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <header>
+      <h1>이미지 무한 스크롤</h1>
+      <!-- 카테고리 -->
+      <nav class="filter_nav">
+        <button class="filter_btn active" data-category="all">전체</button>
+        <button class="filter_btn" data-category="nature">자연</button>
+        <button class="filter_btn" data-category="city">도시</button>
+        <button class="filter_btn" data-category="tech">기술</button>
+      </nav>
+    </header>
+
+    <!-- 이미지 리스트 영역 -->
+    <main class="grid_container" id="grid_container">
+      <!-- JS로 동적 아이템 삽입 -->
+    </main>
+
+    <!-- 무한 스크롤 감지용 바닥 타겟 -->
+    <div id="scroll_trigger" class="scroll_trigger"></div>
+  </div>
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script>
+$(document).ready(function() {
+  function generateMockData(category, page) {
+    var items = [];
+    var tags = ['자연', '도시', '기술'];
+    for (var i = 1; i <= 12; i++) {
+      var id = (page - 1) * 12 + i;
+      var itemTag = tags[(id % 3)];
+      items.push({
+        id: id,
+        title: '샘플이미지 ' + id,
+        desc: itemTag.toUpperCase(),
+        category: itemTag,
+        imgUrl: 'https://picsum.photos/id/' + id + '/600/400'
+      });
+    }
+    return category === 'all' ? items : $.grep(items, function(item) { return item.category === category; });
+  }
+
+  var state = { category: 'all', page: 1, isLoading: false, hasMore: true };
+  var $container = $('#grid_container');
+
+  function renderSkeletons() {
+    var html = '';
+    for (var i = 0; i < 4; i++) {
+      html += '<div class="skeleton_card"><div class="skeleton_img"></div><div class="skeleton_title"></div></div>';
+    }
+    $(html).appendTo($container).hide().fadeIn(200);
+  }
+
+  function loadMediaData() {
+    if (state.isLoading || !state.hasMore) return;
+    state.isLoading = true;
+    renderSkeletons();
+
+    setTimeout(function() {
+      $('.skeleton_card').remove();
+      var newData = generateMockData(state.category, state.page);
+
+      if (newData.length === 0 || state.page > 4) {
+        state.hasMore = false;
+        state.isLoading = false;
+        return;
+      }
+
+      $.each(newData, function(index, item) {
+        var $item = $('<div class="grid_item">');
+        var $imgBox = $('<div class="img_box">');
+        var $img = $('<img>').attr('data-src', item.imgUrl);
+        var $infoBox = $('<div class="info_box">').html('<h3>' + item.title + '</h3><p>' + item.desc + '</p>');
+
+        $imgBox.append($img);
+        $item.append($imgBox).append($infoBox);
+        $container.append($item);
+      });
+
+      checkLazyImages();
+      state.page++;
+      state.isLoading = false;
+    }, 800);
+  }
+
+  function checkScrollAndImages() {
+    if ($(window).scrollTop() + $(window).height() >= $(document).height() - 150) {
+      loadMediaData();
+    }
+    checkLazyImages();
+  }
+
+  function checkLazyImages() {
+    $('img[data-src]').each(function() {
+      var $img = $(this);
+      var imgTop = $img.offset().top;
+      var windowBottom = $(window).scrollTop() + $(window).height();
+
+      if (imgTop < windowBottom + 100) {
+        $img.attr('src', $img.data('src')).removeAttr('data-src');
+        $img.on('load', function() {
+          $(this).addClass('loaded');
+        });
+      }
+    });
+  }
+
+  $('.filter_nav').on('click', '.filter_btn', function() {
+    $('.filter_btn').removeClass('active');
+    $(this).addClass('active');
+
+    state.category = $(this).data('category');
+    state.page = 1;
+    state.hasMore = true;
+    $container.empty();
+
+    loadMediaData();
+  });
+
+  $(window).on('scroll resize', checkScrollAndImages);
+  loadMediaData();
+});
+  </script>
+</body>
+</html>

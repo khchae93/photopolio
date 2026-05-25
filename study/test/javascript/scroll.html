@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이미지 무한 스크롤</title>
+  <style>
+    :root {
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --primary-color: #0f172a;
+  --border-color: #e2e8f0;
+  --skeleton-base: #e2e8f0;
+  --skeleton-ani: #f1f5f9;
+}
+
+*{margin:0;padding:0;-webkit-text-size-adjust:none; box-sizing:border-box; word-break:normal; word-wrap:break-word;}
+*, *:after, *:before {-webkit-box-sizing:border-box; box-sizing:border-box; word-break:normal; word-wrap:break-word;}
+
+body {background-color: var(--bg-color);font-family: system-ui, sans-serif;margin: 0;padding: 20px;}
+
+#wrap {max-width: 1200px;margin: 0 auto;}
+
+header {text-align: center;margin-bottom: 30px;}
+
+/* 필터 버튼 */
+.filter_nav {display: flex; justify-content: center; gap: 10px; margin-top: 15px;}
+.filter_btn {background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: 500; transition: all 0.3s;}
+.filter_btn.active {background: var(--primary-color);color: #ffffff;border-color: var(--primary-color);}
+
+.grid_container {display: grid;grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));gap: 20px;}
+.grid_item {background: var(--card-bg);border-radius: 12px;overflow: hidden;border: 1px solid var(--border-color);box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);}
+
+.img_box {width: 100%;height: 200px;background-color: #eaeaea;overflow: hidden;}
+.img_box img {width: 100%;height: 100%;object-fit: cover;opacity: 0;transition: opacity 0.5s ease-in-out;}
+.img_box img.loaded {opacity: 1;}
+.info_box {padding: 15px;}
+.info_box h3 {margin: 0 0 8px 0;font-size: 18px;}
+.info_box p {margin: 0;color: #64748b;font-size: 16px;}
+
+.skeleton_card {background: var(--card-bg);border-radius: 12px;overflow: hidden;border: 1px solid var(--border-color);padding-bottom: 15px;}
+.skeleton_img {height: 200px;background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-ani) 50%, var(--skeleton-base) 75%);background-size: 200% 100%;animation: shimmer 1.5s infinite;}
+.skeleton_title {height: 18px;margin: 15px;width: 60%;background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-ani) 50%, var(--skeleton-base) 75%);background-size: 200% 100%;animation: shimmer 1.5s infinite;border-radius: 4px;}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.scroll_trigger {height: 20px;margin-top: 20px;}
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <header>
+      <h1>이미지 무한 스크롤</h1>
+      <!-- 카테고리 -->
+      <nav class="filter_nav">
+        <button class="filter_btn active" data-category="all">전체</button>
+        <button class="filter_btn" data-category="nature">자연</button>
+        <button class="filter_btn" data-category="city">도시</button>
+        <button class="filter_btn" data-category="tech">기술</button>
+      </nav>
+    </header>
+
+    <!-- 이미지 리스트 영역 -->
+    <main class="grid_container" id="grid_container">
+      <!-- JS로 동적 아이템 삽입 -->
+    </main>
+
+    <!-- 무한 스크롤 감지용 바닥 타겟 -->
+    <div id="scroll_trigger" class="scroll_trigger"></div>
+  </div>
+
+  <script>
+const generateMockData = (category, page) => {
+  const items = [];
+  const tags = ['자연', '도시', '기술'];
+  for (let i = 1; i <= 12; i++) {
+    const id = (page - 1) * 12 + i;
+    const itemTag = tags[(id % 3)];
+    items.push({
+      id: id,
+      title: `샘플이미지 ${id}`,
+      desc: `${itemTag.toUpperCase()}`,
+      category: itemTag,
+      imgUrl: `https://picsum.photos/id/${id}/600/400`
+    });
+  }
+  return category === 'all' ? items : items.filter(item => item.category === category);
+};
+
+// 앱 상태 관리
+const state = {
+  category: 'all',
+  page: 1,
+  isLoading: false,
+  hasMore: true
+};
+
+const container = document.getElementById('grid_container');
+const trigger = document.getElementById('scroll_trigger');
+
+const renderSkeletons = (count = 4) => {
+  const skeletonHtml = Array(count).fill(`
+    <div class="skeleton_card">
+      <div class="skeleton_img"></div>
+      <div class="skeleton_title"></div>
+    </div>
+  `).join('');
+  container.insertAdjacentHTML('beforeend', skeletonHtml);
+};
+
+const removeSkeletons = () => {
+  const skeletons = container.querySelectorAll('.skeleton_card');
+  skeletons.forEach(el => el.remove());
+};
+
+const loadMediaData = async () => {
+  if (state.isLoading || !state.hasMore) return;
+  state.isLoading = true;
+  renderSkeletons(4);
+
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  const newData = generateMockData(state.category, state.page);
+  removeSkeletons();
+
+  if (newData.length === 0 || state.page > 4) { // 최대 4개까지만 제한
+    state.hasMore = false;
+    state.isLoading = false;
+    return;
+  }
+
+  const cardHtml = newData.map(item => `
+    <div class="grid_item">
+      <div class="img_box">
+        <!-- data-src 속성에 실제 이미지 주소를 숨겨둡니다 (Lazy Load 핵심) -->
+        <img data-src="${item.imgUrl}" alt="${item.title}">
+      </div>
+      <div class="info_box">
+        <h3>${item.title}</h3>
+        <p>${item.desc}</p>
+      </div>
+    </div>
+  `).join('');
+
+  container.insertAdjacentHTML('beforeend', cardHtml);
+  
+  // 새로 뿌려진 카드 이미지들에 레이지 로딩 감지기 부착
+  observeImages();
+  
+  state.page++;
+  state.isLoading = false;
+};
+
+const observeImages = () => {
+  const images = container.querySelectorAll('img[data-src]');
+  
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.src = img.dataset.src; // 화면에 감지되는 순간 실제 주소 주입
+        img.removeAttribute('data-src');
+        img.addEventListener('load', () => img.classList.add('loaded')); // 페이드인 효과
+        observer.unobserve(img); // 감지 해제 (성능 확보)
+      }
+    });
+  }, { rootMargin: '0px 0px 100px 0px' }); // 100px 미리 로드하여 자연스럽게 연출
+
+  images.forEach(img => imageObserver.observe(img));
+};
+
+// 5. [ES6 핵심] IntersectionObserver 기반 무한 스크롤 바닥 감지
+const initInfiniteScroll = () => {
+  const scrollObserver = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !state.isLoading && state.hasMore) {
+      loadMediaData();
+    }
+  }, { threshold: 0.1 });
+
+  scrollObserver.observe(trigger);
+};
+
+// 6. 필터 이벤트 설정
+const initFilters = () => {
+  document.querySelectorAll('.filter_btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.filter_btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+
+      // 상태 초기화 후 그리드 비우기
+      state.category = e.target.dataset.category;
+      state.page = 1;
+      state.hasMore = true;
+      container.innerHTML = '';
+      
+      loadMediaData();
+    });
+  });
+};
+
+// 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  initFilters();
+  initInfiniteScroll();
+});
+  </script>
+</body>
+</html>
