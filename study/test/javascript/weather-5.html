@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>실시간 날씨</title>
+  <style>
+:root {
+  --bg-color: #f1f5f9;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --primary: #2563eb;
+  --border: #e2e8f0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.dashboard-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 날씨 헤더 */
+.dashboard-header {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weather-info {
+  text-align: right;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.weather-info .temp {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* 뉴스 카테고리 탭 */
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.category-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: var(--text-sub);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.category-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+/* 뉴스 리스트 */
+.news-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-item {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.news-title {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  text-decoration: none;
+  margin-bottom: 6px;
+}
+
+.news-title:hover {
+  color: var(--primary);
+}
+
+.news-desc {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.news-date {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* 스켈레톤 로딩 애니메이션 */
+.skeleton-loader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-item {
+  height: 100px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 12px;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 0.9rem;
+}
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- 상단 헤더: 실시간 날씨 위젯 -->
+    <header class="dashboard-header">
+      <h2>Dashboard</h2>
+      <div id="weather-card" class="weather-card">
+        <p class="loading-text">위치 정보 확인 중...</p>
+      </div>
+    </header>
+
+    <!-- 메인 콘텐츠: 뉴스 섹션 -->
+    <main class="news-section">
+      <!-- 뉴스 카테고리 탭 -->
+      <nav class="category-tabs">
+        <button class="category-btn active" data-category="general">종합</button>
+        <button class="category-btn" data-category="business">경제</button>
+        <button class="category-btn" data-category="technology">IT/과학</button>
+        <button class="category-btn" data-category="sports">스포츠</button>
+      </nav>
+
+      <!-- 스켈레톤 로딩 UI (퍼블리셔 특화 UX) -->
+      <div id="skeleton-loader" class="skeleton-loader" style="display: none;">
+        <div class="skeleton-item"></div>
+        <div class="skeleton-item"></div>
+        <div class="skeleton-item"></div>
+      </div>
+
+      <!-- 실시간 뉴스 리스트 -->
+      <ul id="news-list" class="news-list">
+        <!-- JS 동적 렌더링 영역 -->
+      </ul>
+    </main>
+  </div>
+
+  <script>
+// 1. API 키 설정 및 글로벌 상태 관리 (var 사용)
+var WEATHER_API_KEY = '107e404fab39db3074fb98ed03ef7dc3'; 
+var state = {
+  weather: null,
+  newsCategory: 'general',
+  isLoading: false
+};
+
+// 2. DOM 요소 선택 객체화
+var weatherCard = document.getElementById('weather-card');
+var newsList = document.getElementById('news-list');
+var categoryBtns = document.querySelectorAll('.category-btn');
+var loader = document.getElementById('skeleton-loader');
+
+// 3. 앱 초기화 실행 함수
+function init() {
+  initEventListeners();
+  getUserLocation();
+  fetchNews();
+}
+
+// 4. 카테고리 탭 클릭 이벤트 바인딩 (전통적인 for 루프)
+function initEventListeners() {
+  for (var i = 0; i < categoryBtns.length; i++) {
+    categoryBtns[i].addEventListener('click', function(e) {
+      for (var j = 0; j < categoryBtns.length; j++) {
+        categoryBtns[j].classList.remove('active');
+      }
+      e.target.classList.add('active');
+      
+      state.newsCategory = e.target.getAttribute('data-category');
+      fetchNews();
+    });
+  }
+}
+
+// 5. Geolocation API를 통한 좌표 수집
+function getUserLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        fetchWeather(position.coords.latitude, position.coords.longitude);
+      },
+      function() {
+        fetchWeather(37.5665, 126.9780); // 권한 거부 시 기본값 (서울)
+      }
+    );
+  } else {
+    fetchWeather(37.5665, 126.9780);
+  }
+}
+
+// 6. 실시간 날씨 데이터 수집 (ES5 표준 XMLHttpRequest 활용)
+function fetchWeather(lat, lon) {
+  var url = 'https://openweathermap.org' + lat + '&lon=' + lon + '&appid=' + WEATHER_API_KEY + '&units=metric&lang=kr';
+  var xhr = new XMLHttpRequest();
+  
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        state.weather = JSON.parse(xhr.responseText);
+        renderWeather();
+      } else {
+        weatherCard.innerHTML = '<span class="error-msg">날씨 로드 실패</span>';
+      }
+    }
+  };
+  xhr.send();
+}
+
+// 7. 실시간 뉴스 데이터 수집 (XMLHttpRequest 활용)
+function fetchNews() {
+  toggleLoader(true);
+  
+  var url = 'https://newsapi.org' + state.newsCategory + '&apiKey=YOUR_NEWS_API_KEY';
+  var xhr = new XMLHttpRequest();
+  
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      toggleLoader(false);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var data = JSON.parse(xhr.responseText);
+        renderNews(data.articles);
+      } else {
+        newsList.innerHTML = '<li class="error-msg">뉴스 데이터를 불러오는 중 오류가 발생했습니다.</li>';
+      }
+    }
+  };
+  xhr.send();
+}
+
+// 8. 로딩 상태 스위칭 UI 제어
+function toggleLoader(isLoading) {
+  state.isLoading = isLoading;
+  if (isLoading) {
+    loader.style.display = 'block';
+    newsList.style.display = 'none';
+  } else {
+    loader.style.display = 'none';
+    newsList.style.display = 'block';
+  }
+}
+
+// 9. 날씨 위젯 컴포넌트 렌더링 (문자열 결합 사용)
+function renderWeather() {
+  var name = state.weather.name;
+  var temp = state.weather.main.temp;
+  var description = state.weather.weather[0].description;
+  
+  weatherCard.innerHTML = 
+    '<div class="weather-info">' +
+      '<div>' +
+        '<strong>' + name + '</strong>' +
+        '<span>' + description + '</span>' +
+      '</div>' +
+      '<span class="temp">' + Math.round(temp) + '°C</span>' +
+    '</div>';
+}
+
+// 10. 뉴스 피드 컴포넌트 렌더링 (ES5 map + join 조합)
+function renderNews(articles) {
+  if (!articles || articles.length === 0) {
+    newsList.innerHTML = '<li class="empty-msg">최신 뉴스가 없습니다.</li>';
+    return;
+  }
+
+  var htmlString = articles.map(function(article) {
+    var desc = article.description || '상세 내용 내용이 없는 기사입니다.';
+    var date = new Date(article.publishedAt).toLocaleDateString();
+    
+    return '<li class="news-item">' +
+      '<a href="' + article.url + '" target="_blank" class="news-title">' + article.title + '</a>' +
+      '<p class="news-desc">' + desc + '</p>' +
+      '<span class="news-date">' + date + '</span>' +
+    '</li>';
+  }).join('');
+
+  newsList.innerHTML = htmlString;
+}
+
+// DOM 생성 완료 후 앱 구동
+document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

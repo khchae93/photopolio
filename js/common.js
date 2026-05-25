@@ -73,10 +73,10 @@ var Accordion = function (){
             $this_accBtnTxt.text($(this).attr('data-txt-close'));
             $(this).attr({'aria-expanded': $toggle});
         } else {
-            $accCont.removeClass('on');
-            $accDet.slideUp();
-            $accBtnTxt.text($accBtn.attr('data-txt-close'));
-            $accBtn.attr({'aria-expanded': $toggle});
+            // $accCont.removeClass('on');
+            // $accDet.slideUp();
+            // $accBtnTxt.text($accBtn.attr('data-txt-close'));
+            // $accBtn.attr({'aria-expanded': $toggle});
 
             $this_accCont.addClass('on');
             $this_accDet.slideDown();
@@ -164,11 +164,13 @@ $btnMenu.click(function(e){
     if($Mmenu.hasClass('on')) {
         $Mmenu.removeClass('on');
         $MboxMenu.slideUp();
+        $('html').removeClass('fixed');
         $(this).attr({'aria-expanded': !$toggle});
         $btnMenuHindTxt.text($(this).attr($btnMenuCloseTxt));
     } else {
         $Mmenu.addClass('on');
         $MboxMenu.slideDown();
+        $('html').addClass('fixed');
         $(this).attr({'aria-expanded': $toggle});
         $btnMenuHindTxt.text($(this).attr($btnMenuOpenTxt));
     }

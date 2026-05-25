@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todo - javascript</title>
+    <style>
+:root {
+  --bg-color: #f4f6f9;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --primary-color: #4f46e5;
+  --border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --bg-color: #111827;
+  --card-bg: #1f2937;
+  --text-color: #f9fafb;
+  --border-color: #374151;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: system-ui, sans-serif;
+  transition: background 0.3s;
+  display: flex;
+  justify-content: center;
+  padding-top: 50px;
+}
+
+.todo-container {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 450px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+#todo-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+#todo-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-color);
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.tab-btn.active {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.todo-item.completed span {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* 드래그 요소 스타일 */
+.todo-item {
+  cursor: grab; /* 잡을 수 있는 손모양 커서 */
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.todo-item:active {
+  cursor: grabbing; /* 잡았을 때 커서 */
+}
+
+/* 드래그 중인 타겟 아이템 투명도 조절 */
+.todo-item.dragging {
+  opacity: 0.5;
+  background-color: var(--border-color);
+}
+
+/* 드래그 위로 지나갈 때 시각적 효과 (선택사항) */
+.todo-item.drop-over {
+  border-top: 2px solid var(--primary-color);
+}
+    </style>
+</head>
+<body>
+
+<div class="todo-container">
+    <!-- 헤더 & 테마 토글 -->
+    <header>
+      <h1>Task Manager</h1>
+      <button id="theme-toggle" class="theme-btn">🌙</button>
+    </header>
+
+    <!-- 입력 폼 -->
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="새로운 할 일을 입력하세요..." required autocomplete="off">
+      <button type="submit">추가</button>
+    </form>
+
+    <!-- 필터 탭 -->
+    <div class="filter-tabs">
+      <button class="tab-btn active" data-filter="all">전체</button>
+      <button class="tab-btn" data-filter="active">진행 중</button>
+      <button class="tab-btn" data-filter="completed">완료</button>
+    </div>
+
+    <!-- 리스트 영역 -->
+    <ul id="todo-list">
+      <!-- JS로 동적 생성될 영역 -->
+    </ul>
+
+    <!-- 푸터 상태 바 -->
+    <footer>
+      <span id="todo-count">남은 할 일: 0개</span>
+    </footer>
+  </div>
+    
+<script>
+// 1. 상태 변수 정의
+localStorage.removeItem('todos');
+let todos = [];
+todos = JSON.parse(localStorage.getItem('todos')) || [];
+let currentFilter = 'all';
+let draggedItem = null;
+
+// 2. DOM 요소 선택
+const todoForm = document.getElementById('todo-form');
+const todoInput = document.getElementById('todo-input');
+const todoList = document.getElementById('todo-list');
+const todoCount = document.getElementById('todo-count');
+const filterBtns = document.querySelectorAll('.tab-btn');
+const themeToggle = document.getElementById('theme-toggle');
+
+// 3. 이벤트 리스너 등록
+todoForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const text = todoInput.value.trim();
+  if (text) {
+    addTodo(text);
+    todoInput.value = '';
+  }
+});
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    render();
+  });
+});
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = document.body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', newTheme);
+  themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+});
+
+// 4. 핵심 비즈니스 로직 함수
+function addTodo(text) {
+  const todo = { id: Date.now(), text, completed: false };
+  //console.log(todo);
+  todos.push(todo);
+  saveAndRender();
+}
+
+function toggleTodo(id) {
+  todos = todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo);
+  saveAndRender();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(todo => todo.id !== id);
+  saveAndRender();
+}
+
+function saveAndRender() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+  render();
+}
+
+// 5. 렌더링 함수
+function render() {
+  todoList.innerHTML = '';
+  
+  const filteredTodos = todos.filter(todo => {
+    if (currentFilter === 'active') return !todo.completed;
+    if (currentFilter === 'completed') return todo.completed;
+    return true;
+  });
+
+  filteredTodos.forEach((todo, index) => {
+    const li = document.createElement('li');
+    li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+    li.setAttribute('draggable', true); // 1. 드래그 가능하도록 설정
+    li.setAttribute('data-id', todo.id); // 2. 데이터 식별을 위한 ID 바인딩
+    li.setAttribute('data-index', index); // 3. 현재 필터링된 배열 내 인덱스 저장
+    
+    li.innerHTML = `
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+        <span>${todo.text}</span>
+        </label>
+        <button class="delete-btn" style="background:none; border:none; cursor:pointer; color:#ef4444;">삭제</button>
+    `;
+
+    // 기존 이벤트 바인딩
+    li.querySelector('input').addEventListener('change', () => toggleTodo(todo.id));
+    li.querySelector('.delete-btn').addEventListener('click', () => deleteTodo(todo.id));
+
+    // 4. 드래그 이벤트 핸들러 바인딩
+    addDragEvents(li);
+
+    todoList.appendChild(li);
+    });
+
+  const activeCount = todos.filter(todo => !todo.completed).length;
+  todoCount.textContent = `남은 할 일: ${activeCount}개`;
+}
+
+function addDragEvents(item) {
+  // 드래그 시작 시점
+  item.addEventListener('dragstart', (e) => {
+    draggedItem = item;
+    setTimeout(() => item.classList.add('dragging'), 0);
+  });
+
+  // 드래그 종료 시점
+  item.addEventListener('dragend', () => {
+    draggedItem.classList.remove('dragging');
+    draggedItem = null;
+    
+    // 드래그가 끝나면 바뀐 HTML 구조를 기반으로 실제 데이터(todos) 배열 순서 재정렬
+    reorderTodos();
+  });
+
+  // 드래그 대상이 다른 아이템 위로 지나갈 때
+  item.addEventListener('dragover', (e) => {
+    e.preventDefault(); // 필수: drop 이벤트를 허용하기 위함
+    const bounding = item.getBoundingClientRect();
+    const offset = e.clientY - bounding.top - bounding.height / 2;
+    
+    // 마우스 위치가 아이템의 중간보다 아래에 있으면 다음 요소 앞에 삽입
+    if (offset > 0) {
+      item.after(draggedItem);
+    } else {
+      item.before(draggedItem);
+    }
+  });
+}
+
+// 화면의 DOM 순서를 기준으로 실제 todos 배열을 재정렬하고 로컬스토리지에 저장
+function reorderTodos() {
+  const currentRenderedIds = Array.from(todoList.querySelectorAll('.todo-item'))
+                                  .map(item => Number(item.dataset.id));
+  
+  // 현재 렌더링된 ID 순서에 맞게 원래의 todos 배열을 새로 정렬
+  const reordered = [];
+  
+  // 1. 현재 화면에 보이는 정렬된 아이템 순서대로 먼저 배치
+  currentRenderedIds.forEach(id => {
+    const todo = todos.find(t => t.id === id);
+    if (todo) reordered.push(todo);
+  });
+  
+  // 2. 필터링 때문에 화면에 안 보이던 나머지 아이템들도 뒤에 붙여서 데이터 유실 방지
+  todos.forEach(todo => {
+    if (!currentRenderedIds.includes(todo.id)) {
+      reordered.push(todo);
+    }
+  });
+
+  todos = reordered;
+  // 주의: 여기서는 render()를 다시 부르면 마우스 포커스가 튀므로 로컬스토리지에만 저장합니다.
+  localStorage.setItem('todos', JSON.stringify(todos));
+}
+
+// 초기 실행
+render();
+</script>
+</body>
+</html>

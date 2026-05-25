@@ -36,6 +36,10 @@ header, nav, section, article  {-webkit-tap-highlight-color:transparent; outline
 *:focus { -webkit-appearance: none; -webkit-border-radius: 0;
 	-webkit-tap-highlight-color:rgba(255,255,255,0); -webkit-highlight-color:rgba(255,255,255,0); -webkit-tap-highlight-color:transparent; -webkit-highlight-color:transparent; outline:none;}
 
+.mt4 {margin-top:4px;}
+a.link {color:#2a356f;text-decoration:underline;}
+a.btn, button.btn {display:inline-block;height:32px;padding:0 20px;border:2px solid #d0d0d0;background:#fff;border-radius:3px;color:#333;font-size:16px;line-height:28px;}
+
 /* input box color */ 
 input:-webkit-autofill { -webkit-box-shadow:none; -webkit-text-fill-color:#fff; } 
 input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active { transition:background-color 5000s ease-in-out 0s; }
@@ -51,10 +55,11 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 
 
 #wrap {position:relative;}
+html.fixed {overflow-y:hidden;}
 
 #header {position:fixed; z-index:100; left:0; top:0; width:100%; 
-	background:rgba(255,255,255,0.5); 
-	box-shadow:1px 1px 5px rgb(99,99,99,.5); transition: top 0.3s ease-in-out;}
+	background:rgba(255,255,255,0.8); 
+	box-shadow:1px 1px 5px rgb(99,99,99,.8); transition: top 0.3s ease-in-out;}
 #header.on {position:fixed; top: -61px;}
 #header .header_wrap {max-width:1080px; height:60px; margin:0 auto; line-height:60px; }
 #header .header_wrap::after{content:'';display:table;clear:both;}
@@ -77,6 +82,8 @@ input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:foc
 h2.title span {display:inline-block; position:relative; padding-bottom:13px; color:#333; font-size:32px;}
 h2.title span::after {content:''; position: absolute; left:0; bottom:0; width:0; height:3px; background-color:#333; transition:all 800ms ease-in-out;}
 h2.title.on span::after {width:100%;} 
+
+.sub_title {margin-top:20px;color:#333;font-size:18px;line-height:32px;}
 
 
 /* visual */
@@ -109,16 +116,15 @@ h2.title.on span::after {width:100%;}
     -o-animation: GradientAnimation 8s linear forwards;
     animation: GradientAnimation 8s linear forwards;
 }
-.about_wrap::after {content:''; position:absolute; z-index:1; top:0; right:0; bottom:0; left:0; background-color:rgba(195,206,254,.3);}
+.about_wrap::after {content:''; position:absolute; z-index:1; top:0; right:0; bottom:0; left:0; background-color:rgba(195,206,254,.6);}
 
 .about_wrap h2.title {position:relative; z-index:10; top:34%; transform:translateY(-50%); max-width:800px; margin:0 auto; text-align:center; opacity:0; transition:all 800ms ease-in-out;}
-.about_wrap h2.title span {color:#fff; text-shadow:1px 1px #333;}
-.about_wrap h2.title span::after {background-color:#fff;}
+.about_wrap h2.title span {color:#333; text-shadow:1px 1px #999;}
+.about_wrap h2.title span::after {background-color:#333;}
 
-.about_wrap .txt_wrap {position:relative; z-index:10; top:30%; height:52px; overflow:hidden; transform:translateY(-50%); max-width:800px; margin:0 auto; text-align:center; }
-.about_wrap .txt_wrap p {position:relative; top:52px; font-size:18px; line-height:26px; font-weight:700; color:#fff; text-shadow:1px 1px 1px #636363; transition:all 1500ms ease-in-out;}
+.about_wrap .txt_wrap {position:relative; z-index:10; top:30%; min-height:52px; overflow:hidden; transform:translateY(-50%); max-width:800px; margin:30px auto 0; text-align:center; }
+.about_wrap .txt_wrap p {position:relative; top:52px; font-size:18px; line-height:26px; font-weight:700; color:#333; text-shadow:1px 1px 1px #999; transition:all 1500ms ease-in-out;}
 .about_wrap .txt_wrap.txt_1 {margin-top:60px;}
-.about_wrap .txt_wrap.txt_2, .about_wrap .txt_wrap.txt_3 {margin-top:30px;}
 
 .about_wrap .txt_wrap.txt_1 p {transition-delay:700ms;}
 .about_wrap .txt_wrap.txt_2 p {transition-delay:1700ms;}
@@ -138,31 +144,30 @@ h2.title.on span::after {width:100%;}
 .list_acc button.btn_acc_detail {position:absolute; right:24px; top:50%; width:20px; height:20px; margin-top:-15px; border-left:2px solid #808080; border-bottom:2px solid #808080; transform:rotate(-45deg);}
 .list_acc button.btn_acc_detail:hover {border-left:2px solid #333; border-bottom:2px solid #333;}
 .list_acc .acc_detail {display:none; padding:30px 0; border-bottom:1px solid #e0e0e0;}
-.list_acc .acc_cont.on .acc_detail {}
 .list_acc .acc_cont.on button.btn_acc_detail {margin-top:-3px; transform:rotate(135deg);}
-
 
 .career_wrap {max-width:1080px; margin:0 auto; padding-top:60px;}
 .list_career {margin-top:20px;}
 .list_career .h_period {float:left; width:270px; font-size:20px; line-height:28px;}
-.list_career .h_com_name {float:left; width:720px; color:#333; font-size:20px; line-height:28px;}
+.list_career .h_com_name {float:left; width:720px; font-size:20px; line-height:28px;}
 .list_career ul.list {margin-left:270px;}
 .list_career ul.list::after {content: ''; display:table; clear:both;}
-.list_career ul.list li {float:left; width:100%; border-top:1px solid #e0e0e0; margin-top:20px; padding-top:20px;}
+.list_career ul.list li {float:left; width:100%; border-top:1px solid #e0e0e0; margin-top:20px; padding-top:20px; color:#333;}
 .list_career ul.list li:first-child {border-top:0; margin-top:0; padding-top:0;}
 .list_career ul.list .period {display:inline-block; width:220px; vertical-align:middle;}
-.list_career ul.list .txt {display:inline-block; vertical-align:middle;}
-.list_career ul.list .txt.row {position: relative; display:block; margin-top:4px; padding-left:68px;}
+.list_career ul.list .txt {display:inline-block; vertical-align:middle; margin-right:40px;}
+.list_career ul.list .txt.row {position: relative; display:block; margin:4px 0 0 0; padding-left:68px;}
 .list_career ul.list .txt.row span.tag {position:absolute; left:0; top:1px;}
-.list_career ul.list .tech {margin-top:4px;}
-.list_career ul.list .tools {margin-top:4px;}
+.list_career ul.list .tech, .list_career ul.list .tools, .list_career ul.list .site {margin-top:4px;}
 .list_career ul.list span.tag {display:inline-block; width:60px; height:20px; margin-right:8px; padding:0 4px; border-radius:3px; color:#fff; font-size:11px; line-height:20px; vertical-align:middle; text-align:center;}
 .list_career ul.list .period span.tag {background-color:#c0c0c0;}
-.list_career ul.list .txt span.tag {background-color: #c0c0c0;}
-.list_career ul.list .tech span.tag {background-color: #c0c0c0;}
-.list_career ul.list .tools span.tag {background-color: #c0c0c0;}
+.list_career ul.list span.tag {background-color: #c0c0c0;}
 
 .recent_work {max-width:1080px; margin:0 auto; padding-top:60px;}
+
+.study_wrap {max-width:1080px; margin:0 auto; padding-top:60px;}
+.study_wrap .study_item {margin:6px 0 0 10px;}
+.study_wrap .study_item a {line-height:24px;}
 
 .contact_wrap {max-width:1080px; margin:0 auto; padding-top:60px;}
 .contact_wrap .cta_cont {margin-top:30px; padding:4px 32px 24px; font-size:20px; line-height:28px; background-color:#f0f0f0; border-radius:5px;}
@@ -196,6 +201,10 @@ h2.title.on span::after {width:100%;}
 	#header .menu.on button.btn_menu span.line:nth-of-type(2) {display:none;}
 	#header .menu.on button.btn_menu span.line:nth-of-type(1) {position:absolute; left:2px; width:92%; margin:0 0 0 0; transform:rotate(45deg);}
 	#header .menu.on button.btn_menu span.line:nth-of-type(3) {position:absolute; left:2px; width:92%; margin:0 0 0 0; transform:rotate(-45deg);}
+
+	.about_wrap .txt_wrap {margin-top:20px;}
+	.about_wrap .txt_wrap.txt_1 {margin-top:40px;}
+	.about_wrap .txt_wrap p {font-size:16px;line-height:24px;}
 
 	#footer .footer_wrap,
 	.career_wrap,

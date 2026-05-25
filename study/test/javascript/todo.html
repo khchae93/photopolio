@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todo - javascript</title>
+    <style>
+:root {
+  --bg-color: #f4f6f9;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --text-color2: #f9fafb;
+  --primary-color: #4f46e5;
+  --border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --bg-color: #111827;
+  --card-bg: #1f2937;
+  --text-color: #f9fafb;
+  --text-color2: #333333;
+  --border-color: #374151;
+}
+
+*{margin:0;padding:0;-webkit-text-size-adjust:none; box-sizing:border-box; word-break:normal; word-wrap:break-word;}
+*, *:after, *:before {-webkit-box-sizing:border-box; box-sizing:border-box; word-break:normal; word-wrap:break-word;}
+
+body {background-color: var(--bg-color);color: var(--text-color);font-family: system-ui, sans-serif;transition: background 0.3s;display: flex;justify-content: center;padding-top: 50px;}
+
+#wrap {background: var(--card-bg);width: 100%;max-width: 450px;padding: 25px;border-radius: 12px;box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);}
+
+header {display: flex;justify-content: space-between;align-items: center;margin-bottom: 20px;}
+header h1 {font-size:28px;line-height:36px;}
+
+.theme_btn {display:inline-block;width:60px;height:32px;border:1px solid var(--text-color);background:var(--text-color);border-radius:2px;color:var(--text-color2);font-size:14px;line-height:29px;}
+
+.todo_form_inner {display: flex;gap:10px;margin:30px 0 15px;}
+#todo_input {flex: 1;padding: 10px;border: 1px solid var(--border-color);border-radius: 6px;background: transparent;color: var(--text-color);}
+.todo_form_inner button {width:80px;border:1px solid var(--border-color);background: var(--bg-color);color:var(--text-color);}
+
+.filter_tabs {display: flex;gap: 5px;margin-bottom: 15px;}
+
+.tab_btn {background: none;border: none;padding: 5px 10px;cursor: pointer;color: #9ca3af;}
+.tab_btn.active {color: var(--primary-color);font-weight: bold;}
+
+.todo_item {display: flex;align-items: center;justify-content: space-between;padding: 10px 0;border-bottom: 1px solid var(--border-color);}
+.todo_item.completed span {text-decoration: line-through;color: #9ca3af;}
+
+footer {margin-top:40px;}
+    </style>
+</head>
+<body>
+
+<div id="wrap">
+    <!-- 헤더 & 테마 토글 -->
+    <header>
+      <h1>TO DO List</h1>
+      <button id="theme_toggle" class="theme_btn">다크</button>
+    </header>
+
+    <!-- 입력 폼 -->
+    <form id="todo_form">
+      <div class="todo_form_inner">
+        <input type="text" id="todo_input" placeholder="입력하세요" required autocomplete="off">
+        <button type="submit">추가</button>
+      </div>
+    </form>
+
+    <!-- 필터 탭 -->
+    <div class="filter_tabs">
+      <button class="tab_btn active" data-filter="all">전체</button>
+      <button class="tab_btn" data-filter="active">진행 중</button>
+      <button class="tab_btn" data-filter="completed">완료</button>
+    </div>
+
+    <!-- 리스트 영역 -->
+    <ul id="todo-list">
+      <!-- JS로 동적 생성될 영역 -->
+    </ul>
+
+    <!-- 푸터 상태 바 -->
+    <footer>
+      <span id="todo-count">남은 할 일: 0개</span>
+    </footer>
+  </div>
+    
+<script>
+localStorage.removeItem('todos');
+let todos = [];
+todos = JSON.parse(localStorage.getItem('todos')) || [];
+let currentFilter = 'all';
+
+const todoForm = document.getElementById('todo_form');
+const todoInput = document.getElementById('todo_input');
+const todoList = document.getElementById('todo-list');
+const todoCount = document.getElementById('todo-count');
+const filterBtns = document.querySelectorAll('.tab_btn');
+const themeToggle = document.getElementById('theme_toggle');
+
+// 추가버튼
+todoForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const text = todoInput.value.trim();
+  if (text) {
+    addTodo(text);
+    todoInput.value = '';
+  }
+});
+
+//필터
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    currentFilter = e.target.dataset.filter;
+    init();
+  });
+});
+
+// 라이트/다크 모드
+themeToggle.addEventListener('click', () => {
+  const currentTheme = document.body.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', newTheme);
+  themeToggle.textContent = newTheme === 'dark' ? '라이트' : '다크';
+});
+
+function addTodo(text) {
+  const todo = { id: Date.now(), text, completed: false };
+  //console.log(todo);
+  todos.push(todo);
+  saveAndRender();
+}
+
+function toggleTodo(id) {
+  todos = todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo);
+  saveAndRender();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(todo => todo.id !== id);
+  saveAndRender();
+}
+
+function saveAndRender() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+  init();
+}
+
+function init() {
+  todoList.innerHTML = '';
+  
+  const filteredTodos = todos.filter(todo => {
+    if (currentFilter === 'active') return !todo.completed;
+    if (currentFilter === 'completed') return todo.completed;
+    return true;
+  });
+
+  filteredTodos.forEach(todo => {
+    const li = document.createElement('li');
+    li.className = `todo_item ${todo.completed ? 'completed' : ''}`;
+    
+    li.innerHTML = `
+      <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+        <input type="checkbox" ${todo.completed ? 'checked' : ''}>
+        <span>${todo.text}</span>
+      </label>
+      <button class="delete-btn" style="background:none; border:none; cursor:pointer; color:#ef4444;">삭제</button>
+    `;
+
+    // 체크박스 토글 이벤트
+    li.querySelector('input').addEventListener('change', () => toggleTodo(todo.id));
+    // 삭제 버튼 이벤트
+    li.querySelector('.delete-btn').addEventListener('click', () => deleteTodo(todo.id));
+
+    todoList.appendChild(li);
+  });
+
+  const activeCount = todos.filter(todo => !todo.completed).length;
+  todoCount.textContent = `남은 할 일: ${activeCount}개`;
+}
+
+// 초기 실행
+init();
+</script>
+</body>
+</html>
