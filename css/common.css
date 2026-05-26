@@ -139,7 +139,7 @@ h2.title.on span::after {width:100%;}
 .recent-history .swiper-container .swiper-wrapper .swiper-slide {height:200px; background:skyblue;}
 
 .list_acc .acc_cont {position:relative;}
-.list_acc .acc_head {position:relative; padding:24px 30px 24px 0; border-bottom:1px solid #e0e0e0;}
+.list_acc .acc_head {position:relative; padding:20px 30px 20px 0; border-bottom:1px solid #e0e0e0;}
 .list_acc .acc_head::after{content:'';display:table;clear:both;}
 .list_acc button.btn_acc_detail {position:absolute; right:24px; top:50%; width:20px; height:20px; margin-top:-15px; border-left:2px solid #808080; border-bottom:2px solid #808080; transform:rotate(-45deg);}
 .list_acc button.btn_acc_detail:hover {border-left:2px solid #333; border-bottom:2px solid #333;}
@@ -152,14 +152,14 @@ h2.title.on span::after {width:100%;}
 .list_career .h_com_name {float:left; width:720px; font-size:20px; line-height:28px;}
 .list_career ul.list {margin-left:270px;}
 .list_career ul.list::after {content: ''; display:table; clear:both;}
-.list_career ul.list li {float:left; width:100%; border-top:1px solid #e0e0e0; margin-top:20px; padding-top:20px; color:#333;}
+.list_career ul.list li {float:left; width:100%; border-top:1px solid #e0e0e0; margin-top:20px; padding-top:20px; color:#333; font-size:16px; line-height:24px;}
 .list_career ul.list li:first-child {border-top:0; margin-top:0; padding-top:0;}
 .list_career ul.list .period {display:inline-block; width:220px; vertical-align:middle;}
 .list_career ul.list .txt {display:inline-block; vertical-align:middle; margin-right:40px;}
 .list_career ul.list .txt.row {position: relative; display:block; margin:4px 0 0 0; padding-left:68px;}
 .list_career ul.list .txt.row span.tag {position:absolute; left:0; top:1px;}
-.list_career ul.list .tech, .list_career ul.list .tools, .list_career ul.list .site {margin-top:4px;}
-.list_career ul.list span.tag {display:inline-block; width:60px; height:20px; margin-right:8px; padding:0 4px; border-radius:3px; color:#fff; font-size:11px; line-height:20px; vertical-align:middle; text-align:center;}
+.list_career ul.list .tech, .list_career ul.list .tools, .list_career ul.list .site, .list_career ul.list .duty {margin-top:6px;}
+.list_career ul.list span.tag {display:inline-block; width:60px; height:24px; margin-right:8px; padding:0 4px; border-radius:3px; color:#fff; font-size:12px; line-height:24px; vertical-align:middle; text-align:center;}
 .list_career ul.list .period span.tag {background-color:#c0c0c0;}
 .list_career ul.list span.tag {background-color: #c0c0c0;}
 
@@ -207,6 +207,7 @@ h2.title.on span::after {width:100%;}
 	.about_wrap .txt_wrap p {font-size:16px;line-height:24px;}
 
 	#footer .footer_wrap,
+	.study_wrap,
 	.career_wrap,
 	.contact_wrap,
 	.recent_work {max-width:none; width:100%; margin:0; padding:0 24px;}
@@ -231,9 +232,13 @@ h2.title.on span::after {width:100%;}
 	.list_career ul.list .period {display:block; position: relative; width:100%; margin-top:4px; padding-left:68px;}
 	.list_career ul.list .txt {display:block; position: relative; width:100%; margin-top:4px; padding-left:68px;}
 	.list_career ul.list .txt span.tag {position:absolute; left:0; top:1px;}
-	.list_career ul.list .tech {display:block; position: relative; margin-top:4px; padding-left:68px;}
+	.list_career ul.list .duty,
+	.list_career ul.list .site,
+	.list_career ul.list .tech,
 	.list_career ul.list .tools {display:block; position: relative; margin-top:4px; padding-left:68px;}
 	.list_career ul.list span.tag {position:absolute; left:0; top:1px;}
+
+	.study_wrap {padding-top:60px;}
 
 	.contact_wrap {padding-top:60px;}
 	.contact_wrap .cta_cont {margin-top:20px; padding:12px 24px; font-size:18px; line-height:26px; background-color:#f0f0f0; border-radius:5px;}
